@@ -26,6 +26,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
+    private final String teste = "teste";
     private final ClientApiClient clientApi;
     private final AnalysisRepository analysisRepository;
     private final AnalysisMapper analysisMapper;
