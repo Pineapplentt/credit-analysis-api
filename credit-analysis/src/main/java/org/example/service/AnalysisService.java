@@ -26,7 +26,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
-    private final String teste = "teste";
     private final ClientApiClient clientApi;
     private final AnalysisRepository analysisRepository;
     private final AnalysisMapper analysisMapper;
@@ -39,13 +38,16 @@ public class AnalysisService {
     private final BigDecimal WITHDRAW_VALUE = BigDecimal.valueOf(0.10);
 
     public List<AnalysisEntity> getAll(String param) {
-        List<AnalysisEntity> analysisList;
-        String regexCpf = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
+        String regexCpf = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
         String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
         if (param.matches(regexCpf)) {
             try {
                 ClientSearch client = clientApi.getClientByCpf(param);
-                return this.analysisRepository.findByClientId(client.uuid());
+                System.out.println(client.clientId());
+                System.out.println(client.cpf());
+                System.out.println(client.birthdate());
+                System.out.println(client.name());
+                return this.analysisRepository.findByClientId(client.clientId());
             } catch (FeignException.FeignClientException exception) {
                 throw new ClientNotFoundException("Cpf não encontrado");
             }
