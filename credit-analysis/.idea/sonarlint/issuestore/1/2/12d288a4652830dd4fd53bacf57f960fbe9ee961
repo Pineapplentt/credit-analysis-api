@@ -1,0 +1,8 @@
+
+q	java:S116""URename this field "MAX_INCOME" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(½ιΥ°8›έγªƒ1
+|	java:S116#"`Rename this field "MONTHLY_INCOME_DIVIDE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(·ώ“φ8›έγªƒ1
+v	java:S116$"ZRename this field "ANNUAL_INTEREST" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“¦‡¦8›έγªƒ1
+	java:S116%"qRename this field "MONTHLY_INCOME_LESS_THAN_50_PERCENTAGE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ςή­΄8›έγªƒ1
+z	java:S116&"YRename this field "WITHDRAW_VALUE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(τϋξ»ψÿÿÿÿ8›έγªƒ1
+N
+java:S1481)"1Remove this unused "analysisList" local variable.(ΐ­δ·8έγªƒ1
