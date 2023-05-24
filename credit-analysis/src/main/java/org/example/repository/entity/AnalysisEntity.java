@@ -1,24 +1,28 @@
-package org.example.repository.Entity;
+package org.example.repository.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Builder;
-import org.bouncycastle.asn1.its.IValue;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Immutable
 @Table(name = "ANALYSIS")
 public class AnalysisEntity {
 
+    @CreationTimestamp
+    @Column(name = "created_at")
+    LocalDateTime createdAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
     @Id
     private UUID idAnalysis;
     private UUID clientId;
@@ -27,16 +31,9 @@ public class AnalysisEntity {
     private BigDecimal withdraw;
     private BigDecimal annualInterest;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    LocalDateTime updatedAt;
-
-
-    public AnalysisEntity() {}
+    public AnalysisEntity() {
+    }
 
     @Builder(toBuilder = true)
     public AnalysisEntity(
@@ -53,9 +50,11 @@ public class AnalysisEntity {
     public UUID getIdAnalysis() {
         return idAnalysis;
     }
+
     public UUID getClientId() {
         return clientId;
     }
+
     public boolean isApproved() {
         return approved;
     }

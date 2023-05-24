@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: org.example.service.AnalysisServiceTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 1.285 s <<< FAILURE! - in org.example.service.AnalysisServiceTest
+should_create_analysis  Time elapsed: 0.181 s  <<< ERROR!
+org.example.exception.ClientNotFoundException: Client not found
+	at org.example.service.AnalysisServiceTest.should_create_analysis(AnalysisServiceTest.java:85)
+
+should_return_all_analysis_from_cpf  Time elapsed: 0.003 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "org.example.credit.analysis.dto.ClientSearch.clientId()" because "client" is null
+	at org.example.service.AnalysisServiceTest.should_return_all_analysis_from_cpf(AnalysisServiceTest.java:67)
+

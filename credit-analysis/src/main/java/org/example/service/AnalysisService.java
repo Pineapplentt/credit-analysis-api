@@ -1,6 +1,11 @@
 package org.example.service;
 
 import feign.FeignException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.request.AnalysisRequest;
 import org.example.controller.response.AnalysisResponse;
@@ -14,14 +19,8 @@ import org.example.mapper.AnalysisMapper;
 import org.example.mapper.AnalysisResponseMapper;
 import org.example.model.AnalysisModel;
 import org.example.repository.AnalysisRepository;
-import org.example.repository.Entity.AnalysisEntity;
+import org.example.repository.entity.AnalysisEntity;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,70 +30,61 @@ public class AnalysisService {
     private final AnalysisMapper analysisMapper;
     private final AnalysisResponseMapper analysisResponseMapper;
     private final AnalysisEntityMapper analysisEntityMapper;
-    private final BigDecimal MAX_INCOME = BigDecimal.valueOf(50000.00);
-    private final BigDecimal MONTHLY_INCOME_DIVIDE = BigDecimal.valueOf(2.0);
-    private final BigDecimal ANNUAL_INTEREST = BigDecimal.valueOf(0.15);
-    private final BigDecimal MONTHLY_INCOME_LESS_THAN_50_PERCENTAGE = BigDecimal.valueOf(0.30);
-    private final BigDecimal WITHDRAW_VALUE = BigDecimal.valueOf(0.10);
+    private final BigDecimal maxIncome = BigDecimal.valueOf(50000.00);
+    private final BigDecimal monthlyIncomeDivide = BigDecimal.valueOf(2.0);
+    private final BigDecimal annualInterest = BigDecimal.valueOf(0.15);
+    private final BigDecimal monthlyIncomeLessThan50Percentage = BigDecimal.valueOf(0.30);
+    private final BigDecimal withdrawValue = BigDecimal.valueOf(0.10);
 
     public List<AnalysisEntity> getAll(String param) {
-        String regexCpf = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
-        String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
+        final String regexCpf = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
+        final String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
         if (param.matches(regexCpf)) {
             try {
-                ClientSearch client = clientApi.getClientByCpf(param);
-                System.out.println(client.clientId());
-                System.out.println(client.cpf());
-                System.out.println(client.birthdate());
-                System.out.println(client.name());
-                return this.analysisRepository.findByClientId(client.clientId());
+                final ClientSearch client = clientApi.getClientByCpf(param);
+                return this.analysisRepository.findByClientId(client.id());
             } catch (FeignException.FeignClientException exception) {
                 throw new ClientNotFoundException("Cpf não encontrado");
             }
         }
         if (param.matches(regexUuid)) {
-            UUID uuid = UUID.fromString(param);
+            final UUID uuid = UUID.fromString(param);
             return this.analysisRepository.findByClientId(uuid);
         }
         throw new IllegalArgumentException("O parâmetro é inválido");
     }
 
     public AnalysisResponse createAnalysis(AnalysisRequest analysisRequest) { //Mapeia de uma request para uma response
-        if (analysisRequest.clientId().toString().length() < 36) {
-            throw new IllegalArgumentException("UUID inválido");
+        final String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
+        if (analysisRequest.clientId().toString().matches(regexUuid)) {
+            final AnalysisEntity entity = analysisEntityMapper.from(calculate(analysisRequest));
+            final AnalysisEntity savedAnalysis = saveAnalysis(entity);
+            return analysisResponseMapper.from(savedAnalysis);
         }
-        AnalysisEntity entity = analysisEntityMapper.from(calculate(analysisRequest));
-        AnalysisEntity savedAnalysis = saveAnalysis(entity);
-        return analysisResponseMapper.from(savedAnalysis);
+        throw new IllegalArgumentException("UUID inválido");
     }
 
     public AnalysisModel calculate(AnalysisRequest analysisRequest) {
         boolean approved = false;
         BigDecimal approvedLimit = BigDecimal.valueOf(0.0);
         BigDecimal monthlyIncome = analysisRequest.monthlyIncome();
-        BigDecimal requestedAmount = analysisRequest.requestedAmount();
-        BigDecimal halfMonthlyIncome = monthlyIncome.divide(MONTHLY_INCOME_DIVIDE, 2, RoundingMode.HALF_UP);
+        final BigDecimal requestedAmount = analysisRequest.requestedAmount();
+        final BigDecimal halfMonthlyIncome = monthlyIncome.divide(monthlyIncomeDivide, 2, RoundingMode.HALF_UP);
         BigDecimal withdraw = BigDecimal.valueOf(0.0);
 
-        if (monthlyIncome.compareTo(MAX_INCOME) > 0) {
-            monthlyIncome = MAX_INCOME;
+        if (monthlyIncome.compareTo(maxIncome) > 0) {
+            monthlyIncome = maxIncome;
         }
 
-        if (requestedAmount.compareTo(monthlyIncome) < 0
-                &&
-                (requestedAmount.compareTo(halfMonthlyIncome) < 0)) { //Requested amount is greater than half monthly income? y=1, n=-1
+        //Requested amount is greater than half monthly income? y=1, n=-1
+        if (requestedAmount.compareTo(monthlyIncome) < 0 && requestedAmount.compareTo(halfMonthlyIncome) < 0) {
             approved = true;
-            approvedLimit = monthlyIncome.multiply(MONTHLY_INCOME_LESS_THAN_50_PERCENTAGE);
-            withdraw = approvedLimit.multiply(WITHDRAW_VALUE);
+            approvedLimit = monthlyIncome.multiply(monthlyIncomeLessThan50Percentage);
+            withdraw = approvedLimit.multiply(withdrawValue);
 
         }
-        return AnalysisModel.builder()
-                .clientId(analysisRequest.clientId())
-                .approved(approved)
-                .approvedLimit(approvedLimit)
-                .withdraw(withdraw)
-                .annualInterest(ANNUAL_INTEREST)
-                .build();
+        return AnalysisModel.builder().clientId(analysisRequest.clientId()).approved(approved).approvedLimit(approvedLimit).withdraw(withdraw)
+                .annualInterest(annualInterest).build();
     }
 
     public AnalysisEntity saveAnalysis(AnalysisEntity analysisEntity) {
@@ -111,8 +101,8 @@ public class AnalysisService {
     }
 
     public AnalysisResponse getAnalysisById(UUID id) {
-        Optional<AnalysisEntity> entity = Optional.of(this.analysisRepository.findById(id)
-                .orElseThrow(() -> new AnalysisNotFoundException("Analysis not found")));
+        final Optional<AnalysisEntity> entity =
+                Optional.of(this.analysisRepository.findById(id).orElseThrow(() -> new AnalysisNotFoundException("Analysis not found")));
         return analysisResponseMapper.from(entity.get());
     }
 

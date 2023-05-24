@@ -1,0 +1,22 @@
+#Wed May 24 15:30:59 BRT 2023
+configuration*?=179FA9605D50C02AA2D00C6AD76F2770F21B2A47
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\controller\\AnalysisController.java=1684951598316
+module-resource*?\:suppressions.xml=E24BDF01FE2720A346D1EDDF9A49B43EB598B1F7
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\mapper\\AnalysisResponseMapper.java=1684951598332
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\repository\\AnalysisRepository.java=1684951598343
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\mapper\\AnalysisMapper.java=1684951598304
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\credit\\analysis\\dto\\ClientSearch.java=1684951598353
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\exception\\IllegalArgumentException.java=1684522896116
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\AnalysisApplication.java=1684952800369
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\repository\\entity\\AnalysisEntity.java=1684951598404
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\controller\\response\\AnalysisResponse.java=1684951598394
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\controller\\request\\AnalysisRequest.java=1684951598270
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\model\\AnalysisModel.java=1684951598384
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\exceptionhandler\\Exceptionhandler.java=1684951598423
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\exception\\AnalysisNotFoundException.java=1684517258541
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\exception\\ClientNotFoundException.java=1684349675944
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\mapper\\AnalysisEntityMapper.java=1684951598431
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\exception\\CpfAlreadyExistsException.java=1684414374317
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\service\\AnalysisService.java=1684952709202
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\credit\\analysis\\ClientApiClient.java=1684951598366
+C\:\\Users\\joao.santana\\OneDrive\ -\ BANCO\ ARBI\ SA\\Documentos\\git\\credit-analysis-api\\credit-analysis\\src\\main\\java\\org\\example\\util\\ValidationCustom.java=1684952785174
