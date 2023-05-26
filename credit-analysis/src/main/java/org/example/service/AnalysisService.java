@@ -1,6 +1,7 @@
 package org.example.service;
 
 import feign.FeignException;
+import feign.RetryableException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.example.controller.response.AnalysisResponse;
 import org.example.credit.analysis.ClientApiClient;
 import org.example.credit.analysis.dto.ClientSearch;
 import org.example.exception.AnalysisNotFoundException;
+import org.example.exception.ApiConnectionException;
 import org.example.exception.ClientNotFoundException;
 import org.example.exception.IllegalArgumentException;
 import org.example.mapper.AnalysisEntityMapper;
@@ -39,17 +41,20 @@ public class AnalysisService {
     public List<AnalysisEntity> getAll(String param) {
         final String regexCpf = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
         final String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
+
+        if (param.matches(regexUuid)) {
+            final UUID uuid = UUID.fromString(param);
+            return this.analysisRepository.findByClientId(uuid);
+        }
         if (param.matches(regexCpf)) {
             try {
                 final ClientSearch client = clientApi.getClientByCpf(param);
                 return this.analysisRepository.findByClientId(client.id());
             } catch (FeignException.FeignClientException exception) {
                 throw new ClientNotFoundException("Cpf não encontrado");
+            } catch (RetryableException exception) {
+                throw new ApiConnectionException("Não foi possível a conexão com a api de clientes");
             }
-        }
-        if (param.matches(regexUuid)) {
-            final UUID uuid = UUID.fromString(param);
-            return this.analysisRepository.findByClientId(uuid);
         }
         throw new IllegalArgumentException("O parâmetro é inválido");
     }
