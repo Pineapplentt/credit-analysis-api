@@ -2,7 +2,6 @@ package org.example.mapper;
 
 import org.example.controller.request.AnalysisRequest;
 import org.example.model.AnalysisModel;
-
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

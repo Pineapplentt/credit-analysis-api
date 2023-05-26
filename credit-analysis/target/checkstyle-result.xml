@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="9.3">
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\AnalysisApplication.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\controller\AnalysisController.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\controller\request\AnalysisRequest.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\controller\response\AnalysisResponse.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\credit\analysis\ClientApiClient.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\credit\analysis\dto\ClientSearch.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\exception\AnalysisNotFoundException.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\exception\ClientNotFoundException.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\exception\CpfAlreadyExistsException.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\exception\IllegalArgumentException.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\exceptionhandler\Exceptionhandler.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\mapper\AnalysisEntityMapper.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\mapper\AnalysisMapper.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\mapper\AnalysisResponseMapper.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\model\AnalysisModel.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\repository\AnalysisRepository.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\repository\entity\AnalysisEntity.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\service\AnalysisService.java">
+</file>
+<file name="C:\Users\joao.santana\OneDrive - BANCO ARBI SA\Documentos\git\credit-analysis-api\credit-analysis\src\main\java\org\example\util\ValidationCustom.java">
+</file>
+</checkstyle>

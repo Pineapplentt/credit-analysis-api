@@ -1,9 +1,8 @@
 package org.example.model;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.Builder;
 
 public record AnalysisModel(
         UUID clientId,

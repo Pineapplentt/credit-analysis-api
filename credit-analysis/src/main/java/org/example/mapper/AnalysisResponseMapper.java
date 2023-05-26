@@ -1,7 +1,7 @@
 package org.example.mapper;
 
 import org.example.controller.response.AnalysisResponse;
-import org.example.repository.Entity.AnalysisEntity;
+import org.example.repository.entity.AnalysisEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
