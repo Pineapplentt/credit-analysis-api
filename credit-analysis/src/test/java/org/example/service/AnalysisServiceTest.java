@@ -18,6 +18,7 @@ import org.example.mapper.AnalysisResponseMapperImpl;
 import org.example.model.AnalysisModel;
 import org.example.repository.AnalysisRepository;
 import org.example.repository.entity.AnalysisEntity;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -118,6 +119,7 @@ class AnalysisServiceTest {
         assertThrows(ClientNotFoundException.class, () -> analysisService.createAnalysis(analysisRequestFactory()));
     }
 
+    // Este teste esta falhando
     @Test
     void should_throw_illegal_argument_exception_when_uuid_does_not_match_regex() {
         assertThrows(IllegalArgumentException.class, () -> analysisService.createAnalysis(invalidAnalysisUUIDFactory()));

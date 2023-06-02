@@ -6,6 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 
 public record AnalysisRequest(
+        // Este validator uuid é necessário?
         @NotBlank @org.hibernate.validator.constraints.UUID
         UUID clientId,
 

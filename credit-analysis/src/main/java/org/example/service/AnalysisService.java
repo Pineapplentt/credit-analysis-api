@@ -39,6 +39,8 @@ public class AnalysisService {
     private final BigDecimal withdrawValue = BigDecimal.valueOf(0.10);
 
     public List<AnalysisEntity> getAll(String param) {
+        // Utilize constantes para atributos que não mudam
+        // Utilize a anotação do hibernate para validar cpf, cpf não é validado apenas pela qtde de caracteres
         final String regexCpf = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
         final String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
 
@@ -60,6 +62,8 @@ public class AnalysisService {
     }
 
     public AnalysisResponse createAnalysis(AnalysisRequest analysisRequest) { //Mapeia de uma request para uma response
+        // Qual a necessidade de validar o uuid?
+        // Evite utilizar string.matches prefira Pattern, a cada validação é gerado um novo pattern desta forma
         final String regexUuid = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
         if (analysisRequest.clientId().toString().matches(regexUuid)) {
             final AnalysisEntity entity = analysisEntityMapper.from(calculate(analysisRequest));
@@ -95,17 +99,22 @@ public class AnalysisService {
     public AnalysisEntity saveAnalysis(AnalysisEntity analysisEntity) {
         final AnalysisEntity savedAnalysis;
         try {
+            // É melhor que esta consulta fique fica deste método, ele é um sider effect aqui
+            // além de deixar seu codigo confuso, onde salva ele lança um exceção de cliente não encontrado
             if (hasClient(analysisEntity.getClientId())) {
                 savedAnalysis = this.analysisRepository.save(analysisEntity);
                 return savedAnalysis;
             }
+            // se a api consultada retorna um boolean, pq deste catch?
         } catch (FeignException.FeignClientException exception) {
             throw new ClientNotFoundException("Client not found");
         }
+        // pq este outro throw?
         throw new ClientNotFoundException("Client not found");
     }
 
     public AnalysisResponse getAnalysisById(UUID id) {
+        // Pq colocou um optinal dentro de outro aqui?
         final Optional<AnalysisEntity> entity =
                 Optional.of(this.analysisRepository.findById(id).orElseThrow(() -> new AnalysisNotFoundException("Analysis not found")));
         return analysisResponseMapper.from(entity.get());

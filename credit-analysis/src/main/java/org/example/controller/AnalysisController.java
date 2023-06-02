@@ -30,6 +30,9 @@ public class AnalysisController {
         return this.analysisService.createAnalysis(analysisRequest);
     }
 
+
+    // O get de recursos é um lista, não é correto utilizar /list no path
+    // Aqui deveria utilizar query parameters, um para id e outro para cpf
     @GetMapping("/list/{param}")
     public List<AnalysisEntity> getAllAnalysis(@PathVariable String param) {
         return this.analysisService.getAll(param);
