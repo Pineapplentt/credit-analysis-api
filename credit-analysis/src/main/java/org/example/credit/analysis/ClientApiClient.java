@@ -12,6 +12,7 @@ public interface ClientApiClient {
     @GetMapping(path = "/{id}")
     ClientSearch getClientById(@PathVariable UUID id);
 
+    // Este endpoint na app de clientes estão fora do padrão, não faz sentido este path. No endpoint acima se não encontra ele retorna 404
     @GetMapping(path = "/exists/{id}")
     boolean getClientExistsById(@PathVariable UUID id);
 

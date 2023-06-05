@@ -6,6 +6,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Set;
 
+// Esta classe não esta sendo utilizada
 public class ValidationCustom {
     public static <T> T validator(T t) {
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
