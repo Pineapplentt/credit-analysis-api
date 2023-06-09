@@ -1,14 +1,13 @@
 package org.example.service;
 
 import feign.FeignException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Collections;
 import org.example.controller.request.AnalysisRequest;
 import org.example.controller.response.AnalysisResponse;
 import org.example.credit.analysis.ClientApiClient;
 import org.example.credit.analysis.dto.ClientSearch;
 import org.example.exception.ClientNotFoundException;
-import org.example.exception.IllegalArgumentException;
+import org.example.exception.CustomIllegalArgumentException;
 import org.example.mapper.AnalysisEntityMapper;
 import org.example.mapper.AnalysisEntityMapperImpl;
 import org.example.mapper.AnalysisMapper;
@@ -34,7 +33,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 
@@ -66,6 +64,9 @@ class AnalysisServiceTest {
     private ArgumentCaptor<String> clientSearchCpfArgumentCaptor;
 
     @Captor
+    private ArgumentCaptor<String> clientSearchParamArgumentCaptor;
+
+    @Captor
     private ArgumentCaptor<AnalysisRequest> analysisRequestArgumentCaptor;
 
     @Captor
@@ -73,7 +74,7 @@ class AnalysisServiceTest {
 
     @Test
     void should_return_all_analysis_from_cpf() {
-        when(clientApi.getClientByCpf(clientSearchCpfArgumentCaptor.capture())).thenReturn(clientSearchFactory());
+        when(clientApi.getClientBy(clientSearchCpfArgumentCaptor.capture())).thenReturn(Collections.singletonList(clientSearchFactory()));
         when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
 
         List<AnalysisEntity> list = analysisService.getAll(clientSearchFactory().cpf());
@@ -99,15 +100,12 @@ class AnalysisServiceTest {
     @Test
     void should_create_analysis() {
         when(analysisRepository.save(analysisEntityArgumentCaptor.capture())).thenReturn(analysisEntityFactory());
-        when(analysisService.hasClient(clientSearchUUIDArgumentCaptor.capture())).thenReturn(true);
 
         final AnalysisRequest analysisRequest = analysisRequestFactory();
         final AnalysisResponse analysisResponse = analysisService.createAnalysis(analysisRequest);
 
         assertNotNull(analysisResponse);
         assertNotNull(analysisResponse.idAnalysis());
-
-        assertEquals(analysisRequest.clientId(), clientSearchUUIDArgumentCaptor.getValue());
 
         final AnalysisEntity analysisEntity = analysisEntityArgumentCaptor.getValue();
         assertEquals(analysisRequest.clientId(), analysisEntity.getClientId());
@@ -119,8 +117,10 @@ class AnalysisServiceTest {
     }
 
     @Test
-    void should_throw_illegal_argument_exception_when_uuid_does_not_match_regex() {
-        assertThrows(IllegalArgumentException.class, () -> analysisService.createAnalysis(invalidAnalysisUUIDFactory()));
+    void should_throw_illegal_argument_exception_when_param_does_not_match_regex() {
+//        when(clientApi.getClientBy(clientSearchParamArgumentCaptor.capture())).thenReturn(Collections.singletonList(clientSearchFactory()));
+        when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
+        assertThrows(CustomIllegalArgumentException.class, () -> analysisService.createAnalysis(invalidAnalysisUUIDFactory()));
     }
 
     @Test
@@ -139,14 +139,14 @@ class AnalysisServiceTest {
 
     @Test
     void should_throw_client_not_found_exception_when_cpf_not_found() {
-        when(clientApi.getClientByCpf(clientSearchCpfArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
+        when(clientApi.getClientBy(clientSearchCpfArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
 
         assertThrows(ClientNotFoundException.class, () -> analysisService.getAll(clientSearchFactory().cpf()));
     }
 
     @Test
     void should_throw_illegal_argument_exception_when_invalid_search_parameter() {
-        assertThrows(IllegalArgumentException.class, () -> analysisService.getAll(invalidStringFactory()));
+        assertThrows(CustomIllegalArgumentException.class, () -> analysisService.getAll(invalidStringFactory()));
     }
 
     public static ClientSearch clientSearchFactory() {
@@ -161,6 +161,14 @@ class AnalysisServiceTest {
     public static String invalidStringFactory() {
         return "Anything different from cpf: '\\d{3}(\\.?\\d{3}){2}-?\\d{2}'\n" +
                 " or UUID: '[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}'";
+    }
+
+    public static AnalysisRequest invalidAnalysisRequestFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(1000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
+                .clientId(UUID.fromString("42e773f2-9693-4f25-a1c7-44579cd08c4"))
+                .build();
     }
 
     public static AnalysisRequest invalidAnalysisUUIDFactory() {

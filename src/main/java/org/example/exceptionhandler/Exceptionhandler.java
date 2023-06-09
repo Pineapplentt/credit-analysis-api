@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.example.exception.AnalysisNotFoundException;
 import org.example.exception.ApiConnectionException;
 import org.example.exception.ClientNotFoundException;
-import org.example.exception.IllegalArgumentException;
+import org.example.exception.CustomIllegalArgumentException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,8 +25,8 @@ public class Exceptionhandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ProblemDetail illegalArgumentExceptionHandler(IllegalArgumentException exception) {
+    @ExceptionHandler(CustomIllegalArgumentException.class)
+    public ProblemDetail illegalArgumentExceptionHandler(CustomIllegalArgumentException exception) {
         final ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         problemDetail.setType(URI.create("https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/422"));
         problemDetail.setProperty(TIMESTAMP, LocalDateTime.now());
