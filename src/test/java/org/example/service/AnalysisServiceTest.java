@@ -1,11 +1,14 @@
 package org.example.service;
 
 import feign.FeignException;
+import feign.RetryableException;
 import java.util.Collections;
+import java.util.Optional;
 import org.example.controller.request.AnalysisRequest;
 import org.example.controller.response.AnalysisResponse;
 import org.example.credit.analysis.ClientApiClient;
 import org.example.credit.analysis.dto.ClientSearch;
+import org.example.exception.ApiConnectionException;
 import org.example.exception.ClientNotFoundException;
 import org.example.exception.CustomIllegalArgumentException;
 import org.example.mapper.AnalysisEntityMapper;
@@ -73,6 +76,18 @@ class AnalysisServiceTest {
     private ArgumentCaptor<AnalysisEntity> analysisEntityArgumentCaptor;
 
     @Test
+    void should_return_all_analysis_from_uuid() {
+        when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
+
+        List<AnalysisEntity> list = analysisService.getAll(clientSearchFactory().id().toString());
+
+        assertNotNull(list);
+        assertThat(list, is(not(empty())));
+        assertInstanceOf(List.class, list);
+        assertThat(list, everyItem(instanceOf(AnalysisEntity.class)));
+    }
+
+    @Test
     void should_return_all_analysis_from_cpf() {
         when(clientApi.getClientBy(clientSearchCpfArgumentCaptor.capture())).thenReturn(Collections.singletonList(clientSearchFactory()));
         when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
@@ -86,15 +101,9 @@ class AnalysisServiceTest {
     }
 
     @Test
-    void should_return_all_analysis_from_uuid() {
-        when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
-
-        List<AnalysisEntity> list = analysisService.getAll(clientSearchFactory().id().toString());
-
-        assertNotNull(list);
-        assertThat(list, is(not(empty())));
-        assertInstanceOf(List.class, list);
-        assertThat(list, everyItem(instanceOf(AnalysisEntity.class)));
+    void should_throw_api_connection_exception_when_client_api_is_down() {
+        when(clientApi.getClientBy(clientSearchParamArgumentCaptor.capture())).thenThrow(RetryableException.class);
+        assertThrows(ApiConnectionException.class, () -> analysisService.getAll(clientSearchFactory().cpf()));
     }
 
     @Test
@@ -108,18 +117,38 @@ class AnalysisServiceTest {
         assertNotNull(analysisResponse.idAnalysis());
 
         final AnalysisEntity analysisEntity = analysisEntityArgumentCaptor.getValue();
-        assertEquals(analysisRequest.clientId(), analysisEntity.getClientId());
+        assertEquals(analysisRequest.clientId(), analysisEntity.getClientId().toString());
     }
+
+//    @Test
+//    void should_set_max_income_value_to_monthly_income_if_monthly_income_greater_than_max_income_permited() {
+//        AnalysisRequest analysisRequest = analysisRequestMonthlyIncomeGreaterThanMaxIncomeFactory();
+//        AnalysisModel analysisModel = analysisService.calculate(analysisRequest);
+//        assertEquals(AnalysisService.MAX_INCOME, analysisModel.);
+//    }
 
     @Test
     void should_throw_client_not_found_exception_when_client_not_found_when_creating_analysis() {
+        when(clientApi.getClientById(clientSearchUUIDArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
         assertThrows(ClientNotFoundException.class, () -> analysisService.createAnalysis(analysisRequestFactory()));
     }
 
     @Test
+    void should_throw_client_not_found_exception_when_client_not_found_when_saving_analysis() {
+        when(clientApi.getClientById(clientSearchUUIDArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
+        assertThrows(ClientNotFoundException.class, () -> analysisService.saveAnalysis(analysisEntityFactory()));
+    }
+
+    @Test
+    void should_return_analysis_by_id() {
+        when(analysisRepository.findById(clientSearchUUIDArgumentCaptor.capture())).thenReturn(Optional.of(analysisEntityFactory()));
+        AnalysisResponse analysisResponse = analysisService.getAnalysisById(analysisEntityFactory().getClientId());
+
+        assertEquals(analysisEntityFactory().getIdAnalysis(), analysisResponse.idAnalysis());
+    }
+
+    @Test
     void should_throw_illegal_argument_exception_when_param_does_not_match_regex() {
-//        when(clientApi.getClientBy(clientSearchParamArgumentCaptor.capture())).thenReturn(Collections.singletonList(clientSearchFactory()));
-        when(analysisRepository.findByClientId(clientSearchUUIDArgumentCaptor.capture())).thenReturn(analysisEntityListFactory());
         assertThrows(CustomIllegalArgumentException.class, () -> analysisService.createAnalysis(invalidAnalysisUUIDFactory()));
     }
 
@@ -140,7 +169,6 @@ class AnalysisServiceTest {
     @Test
     void should_throw_client_not_found_exception_when_cpf_not_found() {
         when(clientApi.getClientBy(clientSearchCpfArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
-
         assertThrows(ClientNotFoundException.class, () -> analysisService.getAll(clientSearchFactory().cpf()));
     }
 
@@ -167,7 +195,7 @@ class AnalysisServiceTest {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(1000))
                 .monthlyIncome(BigDecimal.valueOf(10000))
-                .clientId(UUID.fromString("42e773f2-9693-4f25-a1c7-44579cd08c4"))
+                .clientId("42e773f2-9693-4f25-a1c7-44579cd08c4")
                 .build();
     }
 
@@ -175,7 +203,7 @@ class AnalysisServiceTest {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(1000))
                 .monthlyIncome(BigDecimal.valueOf(10000))
-                .clientId(UUID.fromString("42e773f2-9693-4f25-a1c7-44579cd08c4"))
+                .clientId("42e773f2-9693-4f25-a1c7-44579cd08c4")
                 .build();
     }
 
@@ -183,7 +211,7 @@ class AnalysisServiceTest {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(1000))
                 .monthlyIncome(BigDecimal.valueOf(10000))
-                .clientId(clientSearchFactory().id())
+                .clientId(clientSearchFactory().id().toString())
                 .build();
     }
 
@@ -191,7 +219,15 @@ class AnalysisServiceTest {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(10000))
                 .monthlyIncome(BigDecimal.valueOf(1000))
-                .clientId(clientSearchFactory().id())
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
+    public static AnalysisRequest analysisRequestMonthlyIncomeGreaterThanMaxIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(1000))
+                .monthlyIncome(BigDecimal.valueOf(100000))
+                .clientId(clientSearchFactory().id().toString())
                 .build();
     }
 
@@ -199,13 +235,13 @@ class AnalysisServiceTest {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(1000))
                 .monthlyIncome(BigDecimal.valueOf(10000))
-                .clientId(clientSearchFactory().id())
+                .clientId(clientSearchFactory().id().toString())
                 .build();
     }
 
     public static AnalysisEntity analysisEntityFactory() {
         return AnalysisEntity.builder()
-                .idAnalysis(UUID.randomUUID())
+                .idAnalysis(UUID.fromString("42e773f2-9693-4f25-a1c7-44579cd08c4"))
                 .approved(true)
                 .approvedLimit(BigDecimal.valueOf(10000))
                 .withdraw(BigDecimal.valueOf(1000))

@@ -22,7 +22,6 @@ import org.example.mapper.AnalysisResponseMapper;
 import org.example.model.AnalysisModel;
 import org.example.repository.AnalysisRepository;
 import org.example.repository.entity.AnalysisEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,18 +32,18 @@ public class AnalysisService {
     private final AnalysisMapper analysisMapper;
     private final AnalysisResponseMapper analysisResponseMapper;
     private final AnalysisEntityMapper analysisEntityMapper;
-    private static final BigDecimal MAX_INCOME = BigDecimal.valueOf(50000.00);
+    static final BigDecimal MAX_INCOME = BigDecimal.valueOf(50000.00);
     private static final BigDecimal MONTHLY_INCOME_DIVIDE = BigDecimal.valueOf(2.0);
     private static final BigDecimal ANNUAL_INTEREST = BigDecimal.valueOf(0.15);
     private static final BigDecimal MONTHLY_INCOME_LESS_THAN_50_PERCENTAGE = BigDecimal.valueOf(0.30);
     private static final BigDecimal WITHDRAW_VALUE = BigDecimal.valueOf(0.10);
     private static final String REGEX_CPF = "\\d{3}(\\.?\\d{3}){2}-?\\d{2}";
     private static final String REGEX_UUID = "[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}";
+    private final Pattern patternCpf = Pattern.compile(REGEX_CPF);
+    private final Pattern patternUuid = Pattern.compile(REGEX_UUID);
 
     public List<AnalysisEntity> getAll(String param) {
         // Concordo que usar o validator é o melhor dos casos para o cpf, mas a api não salva o cpf do cliente, só o id
-        Pattern patternCpf = Pattern.compile(REGEX_CPF);
-        Pattern patternUuid = Pattern.compile(REGEX_UUID);
 
         if (patternUuid.matcher(param).matches()) {
             final UUID uuid = UUID.fromString(param);
@@ -64,12 +63,11 @@ public class AnalysisService {
     }
 
     public AnalysisResponse createAnalysis(AnalysisRequest analysisRequest) { //Mapeia de uma request para uma response
-        Pattern patternUuid = Pattern.compile(REGEX_UUID);
-        final String clientId = analysisRequest.clientId().toString();
+        final String clientId = analysisRequest.clientId();
 
         if (patternUuid.matcher(clientId).matches()) {
-            final AnalysisEntity entity = analysisEntityMapper.from(calculate(analysisRequest));
-            final AnalysisEntity savedAnalysis = saveAnalysis(entity);
+            final AnalysisEntity analysisEntity = analysisEntityMapper.from(calculate(analysisRequest));
+            final AnalysisEntity savedAnalysis = saveAnalysis(analysisEntity);
             return analysisResponseMapper.from(savedAnalysis);
         }
         throw new CustomIllegalArgumentException("O parâmetro é inválido");
@@ -117,4 +115,6 @@ public class AnalysisService {
     public ClientSearch getClient(UUID id) {
         return clientApi.getClientById(id);
     }
+
+
 }
