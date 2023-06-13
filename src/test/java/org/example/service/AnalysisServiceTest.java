@@ -8,6 +8,7 @@ import org.example.controller.request.AnalysisRequest;
 import org.example.controller.response.AnalysisResponse;
 import org.example.credit.analysis.ClientApiClient;
 import org.example.credit.analysis.dto.ClientSearch;
+import org.example.exception.AnalysisNotFoundException;
 import org.example.exception.ApiConnectionException;
 import org.example.exception.ClientNotFoundException;
 import org.example.exception.CustomIllegalArgumentException;
@@ -120,13 +121,6 @@ class AnalysisServiceTest {
         assertEquals(analysisRequest.clientId(), analysisEntity.getClientId().toString());
     }
 
-//    @Test
-//    void should_set_max_income_value_to_monthly_income_if_monthly_income_greater_than_max_income_permited() {
-//        AnalysisRequest analysisRequest = analysisRequestMonthlyIncomeGreaterThanMaxIncomeFactory();
-//        AnalysisModel analysisModel = analysisService.calculate(analysisRequest);
-//        assertEquals(AnalysisService.MAX_INCOME, analysisModel.);
-//    }
-
     @Test
     void should_throw_client_not_found_exception_when_client_not_found_when_creating_analysis() {
         when(clientApi.getClientById(clientSearchUUIDArgumentCaptor.capture())).thenThrow(FeignException.FeignClientException.class);
@@ -142,9 +136,16 @@ class AnalysisServiceTest {
     @Test
     void should_return_analysis_by_id() {
         when(analysisRepository.findById(clientSearchUUIDArgumentCaptor.capture())).thenReturn(Optional.of(analysisEntityFactory()));
-        AnalysisResponse analysisResponse = analysisService.getAnalysisById(analysisEntityFactory().getClientId());
+        AnalysisResponse analysisResponse = analysisService.getAnalysisById(clientSearchFactory().id());
 
-        assertEquals(analysisEntityFactory().getIdAnalysis(), analysisResponse.idAnalysis());
+        assertNotNull(analysisResponse);
+        assertInstanceOf(UUID.class, analysisResponse.idAnalysis());
+    }
+
+    @Test
+    void should_throw_analysis_not_found_exception_when_analysis_not_found() {
+        when(analysisRepository.findById(clientSearchUUIDArgumentCaptor.capture())).thenReturn(Optional.empty());
+        assertThrows(AnalysisNotFoundException.class, () -> analysisService.getAnalysisById(clientSearchFactory().id()));
     }
 
     @Test
@@ -153,17 +154,36 @@ class AnalysisServiceTest {
     }
 
     @Test
-    void should_deny_credit_if_requested_amount_greater_than_monthly_income() {
-        AnalysisModel analysisModel = analysisService.calculate(analysisRequestRequestedAmountGreaterThanMonthlyIncomeFactory());
+    void should_approve_credit_if_requested_amount_less_than_monthly_income_and_half_monthly_income() {
+        AnalysisModel analysisModel = analysisService.calculate(analysisRequestRequestedAmountLessThanMonthlyIncomeAndLessThanHalfMonthlyIncomeFactory());
+        assertTrue(analysisModel.approved());
+    }
+
+    @Test
+    void should_approve_credit_if_monthly_income_greater_than_max_income() {
+        AnalysisModel analysisModel = analysisService.calculate(analysisRequestMonthlyIncomeGreaterThanMaxIncomeFactory());
+        assertTrue(analysisModel.approved());
+    }
+
+    @Test
+    void should_deny_credit_if_requested_amount_less_than_monthly_income_and_greater_than_half_monthly_income() {
+        AnalysisModel analysisModel = analysisService.calculate(analysisRequestRequestedAmountLessThanMonthlyIncomeAndGreaterThanHalfMonthlyIncomeFactory());
 
         assertFalse(analysisModel.approved());
     }
 
     @Test
-    void should_approve_credit_if_monthly_income_greater_than_requested_amount() {
-        AnalysisModel analysisModel = analysisService.calculate(analysisRequestMonthlyIncomeGreaterThanRequestedAmountFactory());
+    void should_approve_credit_if_requested_amount_less_than_half_monthly_income() {
+        AnalysisModel analysisModel = analysisService.calculate(analysisRequestRequestedAmountLessThanHalfMonthlyIncomeFactory());
 
         assertTrue(analysisModel.approved());
+    }
+
+    @Test
+    void should_deny_credit_if_monthly_income_less_than_requested_amount_and_greater_than_half_monthly_income() {
+        AnalysisModel analysisModel = analysisService.calculate(analysisRequestMonthlyIncomeLessThanRequestedAmountAndGreaterThanHalfMonthlyIncomeFactory());
+
+        assertFalse(analysisModel.approved());
     }
 
     @Test
@@ -215,10 +235,34 @@ class AnalysisServiceTest {
                 .build();
     }
 
-    public static AnalysisRequest analysisRequestRequestedAmountGreaterThanMonthlyIncomeFactory() {
+    public static AnalysisRequest analysisRequestRequestedAmountLessThanMonthlyIncomeAndLessThanHalfMonthlyIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(1000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
+    public static AnalysisRequest analysisRequestRequestedAmountLessThanMonthlyIncomeAndGreaterThanHalfMonthlyIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(6000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
+    public static AnalysisRequest analysisRequestRequestedAmountLessThanHalfMonthlyIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(4000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
+    public static AnalysisRequest analysisRequestRequestedAmountEqualToMonthlyIncomeFactory() {
         return AnalysisRequest.builder()
                 .requestedAmount(BigDecimal.valueOf(10000))
-                .monthlyIncome(BigDecimal.valueOf(1000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
                 .clientId(clientSearchFactory().id().toString())
                 .build();
     }
@@ -239,9 +283,25 @@ class AnalysisServiceTest {
                 .build();
     }
 
+    public static AnalysisRequest analysisRequestMonthlyIncomeLessThanRequestedAmountAndLessThanHalfMonthlyIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(10000))
+                .monthlyIncome(BigDecimal.valueOf(1000))
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
+    public static AnalysisRequest analysisRequestMonthlyIncomeLessThanRequestedAmountAndGreaterThanHalfMonthlyIncomeFactory() {
+        return AnalysisRequest.builder()
+                .requestedAmount(BigDecimal.valueOf(6000))
+                .monthlyIncome(BigDecimal.valueOf(10000))
+                .clientId(clientSearchFactory().id().toString())
+                .build();
+    }
+
     public static AnalysisEntity analysisEntityFactory() {
         return AnalysisEntity.builder()
-                .idAnalysis(UUID.fromString("42e773f2-9693-4f25-a1c7-44579cd08c4"))
+                .idAnalysis(UUID.randomUUID())
                 .approved(true)
                 .approvedLimit(BigDecimal.valueOf(10000))
                 .withdraw(BigDecimal.valueOf(1000))
